@@ -1,6 +1,6 @@
 import "@/app/globals.css"; // Asegúrate de que la ruta sea correcta
 import { Navbar } from "./components/Navbar";
-import { RegisterForm } from "./(auth)/register/formulario";
+import RegisterForm from "./(auth)/register/formulario";
 
 export default function RootLayout({
     children,
