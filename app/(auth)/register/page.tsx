@@ -1,3 +1,4 @@
+
 import { RegisterForm } from "./formulario";
 
 export default function RegisterPage() {
