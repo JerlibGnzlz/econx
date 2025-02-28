@@ -1,82 +1,65 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Button } from "@/app/components/Button";
-import { Input } from "@/app/components/Input";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/app/components/Button"
+import { Input } from "@/app/components/Input"
 
 export function RegisterForm() {
-    const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+    const [name, setName] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [message, setMessage] = useState("")
+    const [isError, setIsError] = useState(false)
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    const router = useRouter()
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("Enviando datos:", formData);
+        e.preventDefault()
+        setMessage("")
+        setIsError(false)
+
+        console.log("Enviando datos:", { name, email, password })
 
         try {
-            const response = await fetch("/api/register", {
+
+            const response = await fetch("http://localhost:3000/api/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({ name, email, password }),
             });
 
+            const data = await response.json()
+
             if (!response.ok) {
-                throw new Error("Error en el registro");
+                throw new Error(data.error || "Hubo un problema al registrar el usuario.")
             }
 
-            const data = await response.json();
-            console.log("Respuesta del servidor:", data);
-            alert(data.message);
+            console.log("Registro exitoso:", data)
+            setMessage("Registro exitoso 🎉")
+            setIsError(false)
+
+            setTimeout(() => {
+                router.push("/login")
+            }, 2000)
         } catch (error) {
-            console.error("Error en el registro:", error);
-            alert("Hubo un problema al registrar el usuario.");
+            console.error("Error en el registro:", error)
+            setIsError(true)
+            setMessage(error instanceof Error ? error.message : "Hubo un problema al registrar el usuario.")
         }
-    };
+    }
 
     return (
         <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-6 space-y-4">
-            <Input type="text" name="name" placeholder="Nombre" required onChange={handleChange} />
-            <Input type="email" name="email" placeholder="Correo electrónico" required onChange={handleChange} />
-            <Input type="password" name="password" placeholder="Contraseña" required onChange={handleChange} />
+            <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre" required />
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Correo electrónico" required />
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña" required />
             <Button type="submit" className="w-full">Registrarse</Button>
+            {message && (
+                <p className={`text-center ${isError ? "text-red-500" : "text-green-500"}`}>
+                    {message}
+                </p>
+            )}
         </form>
-    );
+    )
 }
-
-
-// "use client";
-// import { useState } from "react";
-
-// export default function RegisterForm() {
-//     const [message, setMessage] = useState("");
-
-//     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-//         e.preventDefault();
-//         const formData = new FormData(e.currentTarget);
-
-//         const response = await fetch("/api/auth/register", {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({
-//                 name: formData.get("name"),
-//                 email: formData.get("email"),
-//                 password: formData.get("password"),
-//             }),
-//         });
-
-//         const data = await response.json();
-//         setMessage(data.success || data.error);
-//     };
-
-//     return (
-//         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-//             <input name="name" placeholder="Nombre" required className="p-2 border" />
-//             <input name="email" type="email" placeholder="Correo" required className="p-2 border" />
-//             <input name="password" type="password" placeholder="Contraseña" required className="p-2 border" />
-//             <button type="submit" className="bg-indigo-600 text-white p-2 rounded">Registrarse</button>
-//             {message && <p className="text-red-500">{message}</p>}
-//         </form>
-//     );
-// }
