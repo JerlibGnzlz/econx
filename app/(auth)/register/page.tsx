@@ -1,7 +1,7 @@
 
-// import { RegisterForm } from "./formulario";
+import { RegisterForm } from "./formulario";
 
-import RegisterForm from "./formulario";
+
 
 export default function RegisterPage() {
     return (
