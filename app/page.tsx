@@ -1,4 +1,3 @@
-
 import { BarChart3, Users, ShoppingBag } from 'lucide-react';
 import Image from "next/image";
 import { Button } from './components/Button';
@@ -9,16 +8,21 @@ export default function HomePage() {
             {/* Hero Section */}
             <div className="flex flex-col md:flex-row items-center justify-between bg-slate-900 text-white p-10 rounded-lg shadow-lg">
                 <div>
-                    <h1 className="text-4xl font-bold">Bienvenido al Dashboard</h1>
-                    <p className="mt-2 text-slate-300">Gestiona tus productos, usuarios y ventas en un solo lugar.</p>
-                    <Button className="mt-4 text-black bg-white px-6 py-2 rounded-lg shadow-md hover:bg-slate-100 hover:text-slate-900 hover:scale-105 transition-all duration-300">
+                    <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-500 to-green-400 text-transparent bg-clip-text">
+                        Tu Tienda Online Rápida y Segura 🚀🛒
+                    </h1>
+                    <p className="mt-2 text-lg text-gray-600 font-medium">
+                        Gestiona tus productos, usuarios y ventas en un solo lugar.
+                    </p>
+
+                    {/* <Button className="mt-4 text-black bg-white px-6 py-2 rounded-lg shadow-md hover:bg-slate-100 hover:text-slate-900 hover:scale-105 transition-all duration-300">
                         Explorar
-                    </Button>
+                    </Button> */}
                 </div>
                 <Image
-                    src="/placeholder.svg"
+                    src="/online.jpg"
                     width={400}
-                    height={300}
+                    height={100}
                     alt="Dashboard preview"
                     className="mt-4 md:mt-0 rounded-lg"
                 />
@@ -73,5 +77,5 @@ export default function HomePage() {
                 </div>
             </div>
         </div>
-    );
+    )
 }

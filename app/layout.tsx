@@ -3,6 +3,19 @@ import { Navbar } from "./components/Navbar";
 import { RegisterForm } from "./(auth)/register/formulario";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { db } from "./lib/db";
+
+async function testDBConnection() {
+    try {
+        await db.execute("SELECT 1");
+        console.log("✅ Conectado a la base de datos correctamente.");
+    } catch (error) {
+        console.error("Error al conectar a la base de datos:", error);
+    }
+}
+
+testDBConnection();
+
 
 export default async function RootLayout({
     children,
@@ -17,7 +30,6 @@ export default async function RootLayout({
                 <Navbar session={session} />
                 <main className="container mx-auto p-4">
                     {children}
-                    <RegisterForm />
                 </main>
             </body>
         </html>

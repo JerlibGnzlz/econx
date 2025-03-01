@@ -1,65 +1,113 @@
+
 "use client"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/app/components/Button"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Eye, EyeOff } from "lucide-react"
 import { Input } from "@/app/components/Input"
+import { Button } from "@/app/components/Button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
+
+// Esquema de validación con Zod
+const registerSchema = z.object({
+    name: z.string().min(3, "El nombre debe tener al menos 3 caracteres."),
+    email: z.string().email("Debe ser un correo válido."),
+    password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
+})
+
+type RegisterData = z.infer<typeof registerSchema>
 
 export function RegisterForm() {
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [message, setMessage] = useState("")
-    const [isError, setIsError] = useState(false)
-
+    const [showPassword, setShowPassword] = useState(false)
     const router = useRouter()
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setMessage("")
-        setIsError(false)
+    // React Hook Form
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        reset,
+    } = useForm<RegisterData>({
+        resolver: zodResolver(registerSchema),
+    })
 
-        console.log("Enviando datos:", { name, email, password })
-
+    const onSubmit = async (data: RegisterData) => {
         try {
-
-            const response = await fetch("http://localhost:3000/api/register", {
+            const response = await fetch("/api/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, email, password }),
-            });
+                body: JSON.stringify(data),
+            })
 
-            const data = await response.json()
-
+            const result = await response.json()
             if (!response.ok) {
-                throw new Error(data.error || "Hubo un problema al registrar el usuario.")
+                throw new Error(result.error || "Hubo un problema al registrar el usuario.")
             }
 
-            console.log("Registro exitoso:", data)
-            setMessage("Registro exitoso 🎉")
-            setIsError(false)
-
-            setTimeout(() => {
-                router.push("/login")
-            }, 2000)
+            alert("Registro exitoso 🎉")
+            reset()
+            router.push("/login")
         } catch (error) {
-            console.error("Error en el registro:", error)
-            setIsError(true)
-            setMessage(error instanceof Error ? error.message : "Hubo un problema al registrar el usuario.")
+            alert(error instanceof Error ? error.message : "Error desconocido")
         }
     }
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-6 space-y-4">
-            <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre" required />
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Correo electrónico" required />
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña" required />
-            <Button type="submit" className="w-full">Registrarse</Button>
-            {message && (
-                <p className={`text-center ${isError ? "text-red-500" : "text-green-500"}`}>
-                    {message}
-                </p>
-            )}
-        </form>
+        <Card className="max-w-md mx-auto mt-10 p-6 shadow-lg">
+            <CardHeader>
+                <CardTitle className="text-center text-xl font-bold">Crear Cuenta</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    {/* Nombre */}
+                    <div>
+                        <Input type="text" placeholder="Nombre" {...register("name")} />
+                        {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+                    </div>
+
+                    {/* Correo */}
+                    <div>
+                        <Input type="email" placeholder="Correo electrónico" {...register("email")} />
+                        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                    </div>
+
+                    {/* Contraseña */}
+                    <div className="relative">
+                        <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Contraseña"
+                            {...register("password")}
+                        />
+                        <button
+                            type="button"
+                            className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                        {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+                    </div>
+
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        {isSubmitting ? "Registrando..." : "Registrarse"}
+                    </Button>
+
+                    {/* Enlace al Login */}
+                    <p className="text-center text-sm mt-2">
+                        ¿Ya tienes una cuenta?{" "}
+                        <button
+                            type="button"
+                            className="text-blue-600 hover:underline font-medium"
+                            onClick={() => router.push("/login")}
+                        >
+                            Inicia sesión
+                        </button>
+                    </p>
+                </form>
+            </CardContent>
+        </Card>
     )
 }
