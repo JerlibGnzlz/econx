@@ -4,6 +4,7 @@ import { RegisterForm } from "./(auth)/register/formulario";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "./lib/db";
+import { Sidebar } from "./components/Sidebar";
 
 async function testDBConnection() {
     try {
@@ -28,6 +29,7 @@ export default async function RootLayout({
         <html lang="es">
             <body className="bg-gray-100">
                 <Navbar session={session} />
+                <Sidebar />
                 <main className="container mx-auto p-4">
                     {children}
                 </main>
