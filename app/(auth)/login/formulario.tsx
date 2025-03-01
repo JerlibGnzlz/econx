@@ -11,7 +11,7 @@ import { Input } from "@/app/components/Input";
 import { Button } from "@/app/components/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 
-// Esquema de validación con Zod
+// // Esquema de validación con Zod
 const loginSchema = z.object({
     email: z.string().email("Debe ser un correo válido."),
     password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
@@ -100,3 +100,67 @@ export default function LoginForm() {
         </Card>
     );
 }
+
+
+/* -------------------------------------------------------------------------- */
+
+// const loginSchema = z.object({
+//     email: z.string().email("Debe ser un correo válido."),
+//     password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
+// });
+
+// type LoginData = z.infer<typeof loginSchema>;
+
+// export function LoginForm() {
+//     const [error, setError] = useState("");
+//     const router = useRouter();
+
+//     const {
+//         register,
+//         handleSubmit,
+//         formState: { errors, isSubmitting },
+//     } = useForm<LoginData>({
+//         resolver: zodResolver(loginSchema),
+//     });
+
+//     const onSubmit = async (data: LoginData) => {
+//         setError("");
+
+//         try {
+//             const response = await fetch("/api/login", {
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 body: JSON.stringify(data),
+//             });
+
+//             const result = await response.json();
+
+//             if (!response.ok) {
+//                 throw new Error(result.error || "Error al iniciar sesión");
+//             }
+
+//             // Redirigir al sidebar después del login
+//             router.push("/dashboard");
+//         } catch (error) {
+//             setError(error instanceof Error ? error.message : "Error desconocido");
+//         }
+//     };
+
+//     return (
+//         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+//             {error && <p className="text-red-500 text-sm">{error}</p>}
+
+//             {/* Correo */}
+//             <Input type="email" placeholder="Correo electrónico" {...register("email")} />
+//             {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+
+//             {/* Contraseña */}
+//             <Input type="password" placeholder="Contraseña" {...register("password")} />
+//             {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+
+//             <Button type="submit" className="w-full" disabled={isSubmitting}>
+//                 {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
+//             </Button>
+//         </form>
+//     );
+// }

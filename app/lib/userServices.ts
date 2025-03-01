@@ -31,3 +31,23 @@ export async function registerUser(name: string, email: string, password: string
 
 
 
+import jwt from "jsonwebtoken";
+
+const SECRET_KEY = process.env.JWT_SECRET!;
+
+export async function loginUser(email: string, password: string) {
+    const user = await db.select().from(users).where(eq(users.email, email));
+
+    if (user.length === 0) {
+        throw new Error("Usuario no encontrado");
+    }
+
+    const validPassword = await bcrypt.compare(password, user[0].password);
+    if (!validPassword) {
+        throw new Error("Contraseña incorrecta");
+    }
+
+    const token = jwt.sign({ userId: user[0].id, email: user[0].email }, SECRET_KEY, { expiresIn: "1h" });
+
+    return { user: user[0], token };
+}
