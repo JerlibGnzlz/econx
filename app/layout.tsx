@@ -1,6 +1,5 @@
 import type React from "react"
 import "./globals.css"
-import { Inter } from "next/font/google"
 import { AuthProvider } from "./providers"
 // import { Navbar } from "./components/navbar"
 import { Toaster } from "sonner"
@@ -8,7 +7,6 @@ import { Navbar } from "./components/Navbar"
 import { db } from "./lib/db";
 
 
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
     title: "Online Shop",
@@ -30,7 +28,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="es">
-            <body className={inter.className}>
+            <body className="bg-gray-100" >
                 <AuthProvider>
                     <Navbar />
                     {children}
