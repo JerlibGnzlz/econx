@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    // ❌ Elimina esta línea, ya no es necesaria
+    serverActions: true,
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
