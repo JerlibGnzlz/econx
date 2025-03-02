@@ -1,113 +1,188 @@
-
 "use client"
 
+import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Eye, EyeOff } from "lucide-react"
-import { Input } from "@/app/components/Input"
-import { Button } from "@/app/components/Button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Button } from "@/app/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Input } from "@/app/components/ui/input"
+import Link from "next/link"
+import { toast } from "sonner"
 
-// Esquema de validación con Zod
-const registerSchema = z.object({
-    name: z.string().min(3, "El nombre debe tener al menos 3 caracteres."),
-    email: z.string().email("Debe ser un correo válido."),
-    password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
-})
-
-type RegisterData = z.infer<typeof registerSchema>
-
-export function RegisterForm() {
-    const [showPassword, setShowPassword] = useState(false)
+export default function RegisterForm() {
     const router = useRouter()
-
-    // React Hook Form
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        reset,
-    } = useForm<RegisterData>({
-        resolver: zodResolver(registerSchema),
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
     })
+    const [errors, setErrors] = useState<Record<string, string>>({})
+    const [isLoading, setIsLoading] = useState(false)
 
-    const onSubmit = async (data: RegisterData) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        setFormData((prev) => ({ ...prev, [name]: value }))
+        if (errors[name]) {
+            setErrors((prev) => {
+                const newErrors = { ...prev }
+                delete newErrors[name]
+                return newErrors
+            })
+        }
+    }
+
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {}
+
+        if (!formData.name.trim()) {
+            newErrors.name = "El nombre es requerido"
+        }
+
+        if (!formData.email.trim()) {
+            newErrors.email = "El correo electrónico es requerido"
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = "Correo electrónico inválido"
+        }
+
+        if (!formData.password) {
+            newErrors.password = "La contraseña es requerida"
+        } else if (formData.password.length < 8) {
+            newErrors.password = "La contraseña debe tener al menos 8 caracteres"
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = "Las contraseñas no coinciden"
+        }
+
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        if (!validateForm()) {
+            return
+        }
+
+        setIsLoading(true)
+
         try {
             const response = await fetch("/api/register", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password,
+                }),
             })
 
-            const result = await response.json()
+            const data = await response.json()
+
             if (!response.ok) {
-                throw new Error(result.error || "Hubo un problema al registrar el usuario.")
+                throw new Error(data.error || "Error al registrar usuario")
             }
 
-            alert("Registro exitoso 🎉")
-            reset()
-            router.push("/login")
+            toast.success("Registro exitoso. Redirigiendo al inicio de sesión...")
+
+            // Redirección después de un registro exitoso
+            setTimeout(() => {
+                router.push("/login")
+            }, 1500) // Reducido a 1.5 segundos para una mejor experiencia de usuario
         } catch (error) {
-            alert(error instanceof Error ? error.message : "Error desconocido")
+            toast.error(error instanceof Error ? error.message : "Ocurrió un error al registrar")
+        } finally {
+            setIsLoading(false)
         }
     }
 
     return (
-        <Card className="max-w-md mx-auto mt-10 p-6 shadow-lg">
+        <Card className="w-full max-w-md mx-auto">
             <CardHeader>
-                <CardTitle className="text-center text-xl font-bold">Crear Cuenta</CardTitle>
+                <CardTitle className="text-2xl font-bold">Crear cuenta</CardTitle>
+                <CardDescription>Complete el formulario para registrarse</CardDescription>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Nombre */}
-                    <div>
-                        <Input type="text" placeholder="Nombre" {...register("name")} />
-                        {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
-                    </div>
-
-                    {/* Correo */}
-                    <div>
-                        <Input type="email" placeholder="Correo electrónico" {...register("email")} />
-                        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-                    </div>
-
-                    {/* Contraseña */}
-                    <div className="relative">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                        <label htmlFor="name" className="text-sm font-medium">
+                            Nombre completo
+                        </label>
                         <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Contraseña"
-                            {...register("password")}
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            placeholder="Juan Pérez"
+                            required
                         />
-                        <button
-                            type="button"
-                            className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                        {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+                        {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? "Registrando..." : "Registrarse"}
-                    </Button>
+                    <div className="space-y-2">
+                        <label htmlFor="email" className="text-sm font-medium">
+                            Correo electrónico
+                        </label>
+                        <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="correo@ejemplo.com"
+                            required
+                        />
+                        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                    </div>
 
-                    {/* Enlace al Login */}
-                    <p className="text-center text-sm mt-2">
-                        ¿Ya tienes una cuenta?{" "}
-                        <button
-                            type="button"
-                            className="text-blue-600 hover:underline font-medium"
-                            onClick={() => router.push("/login")}
-                        >
-                            Inicia sesión
-                        </button>
-                    </p>
+                    <div className="space-y-2">
+                        <label htmlFor="password" className="text-sm font-medium">
+                            Contraseña
+                        </label>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                        />
+                        {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                        <label htmlFor="confirmPassword" className="text-sm font-medium">
+                            Confirmar contraseña
+                        </label>
+                        <Input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type="password"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            required
+                        />
+                        {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword}</p>}
+                    </div>
+
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? "Registrando..." : "Registrarse"}
+                    </Button>
                 </form>
             </CardContent>
+            <CardFooter className="flex justify-center">
+                <p className="text-sm text-center">
+                    ¿Ya tiene una cuenta?{" "}
+                    <Link href="/login" className="text-blue-600 hover:underline">
+                        Inicie sesión aquí
+                    </Link>
+                </p>
+            </CardFooter>
         </Card>
     )
 }
+

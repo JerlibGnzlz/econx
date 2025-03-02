@@ -1,6 +1,7 @@
 import { cn } from "@/app/lib/utils";
+import clsx from "clsx";
 import * as React from "react"
-// import { cn } from "@/lib/utils"
+
 
 export function Card({ className, children }: { className?: string; children: React.ReactNode }) {
     return (
@@ -10,14 +11,30 @@ export function Card({ className, children }: { className?: string; children: Re
     )
 }
 
-export function CardHeader({ children }: { children: React.ReactNode }) {
-    return <div className="mb-4">{children}</div>
-}
+export const CardHeader = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={clsx("p-4 border-b", className)}>
+        {children}
+    </div>
+);
+
 
 export function CardTitle({ className, children }: { className?: string; children: React.ReactNode }) {
     return <h2 className={cn("text-lg font-semibold", className)}>{children}</h2>
 }
 
-export function CardContent({ children }: { children: React.ReactNode }) {
-    return <div>{children}</div>
+export const CardContent = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={clsx("p-4", className)}>
+        {children}
+    </div>
+);
+
+
+export function CardDescription({ children, className }: { children: React.ReactNode; className?: string }) {
+    return <p className={cn("text-sm text-muted-foreground", className)}>{children}</p>;
 }
+
+export const CardFooter = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={clsx("p-4 border-t", className)}>
+        {children}
+    </div>
+);

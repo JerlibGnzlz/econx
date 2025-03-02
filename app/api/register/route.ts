@@ -1,55 +1,54 @@
-import { NextResponse } from "next/server";
-import { db } from "@/app/lib/db";
-import { users } from "@/app/lib/schema";
-import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs"; // Usar bcrypt en lugar de bcryptjs
-import * as z from "zod"; // Para validar los datos de entrada
+import { createUser } from "@/app/lib/userServices"
+import { type NextRequest, NextResponse } from "next/server"
+// import { createUser } from "@/app/lib/userservices"
+import { z } from "zod"
 
-// Definir esquema de validación con Zod
+// Esquema de validación para el registro
 const registerSchema = z.object({
-    name: z.string().min(3, "El nombre debe tener al menos 3 caracteres."),
-    email: z.string().email("Debe ser un correo válido."),
-    password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
-});
+    name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+    email: z.string().email("Correo electrónico inválido"),
+    password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+})
 
-// Función para hashear la contraseña con buenas prácticas
-async function hashPassword(password: string): Promise<string> {
-    const saltRounds = 12; // Usamos un costo mayor para mayor seguridad
-    return await bcrypt.hash(password, saltRounds);
-}
-
-// Función principal del endpoint
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
     try {
-        const body = await req.json();
-        const parsedData = registerSchema.safeParse(body);
+        // Obtener y validar los datos del cuerpo de la solicitud
+        const body = await request.json()
+        const validationResult = registerSchema.safeParse(body)
 
-        if (!parsedData.success) {
-            return NextResponse.json({ error: parsedData.error.format() }, { status: 400 });
+        if (!validationResult.success) {
+            return NextResponse.json(
+                { error: "Datos de registro inválidos", details: validationResult.error.format() },
+                { status: 400 },
+            )
         }
 
-        const { name, email, password } = parsedData.data;
+        // Crear el usuario en la base de datos
+        const userData = validationResult.data
+        const user = await createUser(userData)
 
-        // Verificar si el usuario ya existe
-        const existingUser = await db.select().from(users).where(eq(users.email, email));
-
-        if (existingUser.length > 0) {
-            return NextResponse.json({ error: "El usuario ya está registrado" }, { status: 400 });
-        }
-
-        // Hashear la contraseña
-        const hashedPassword = await hashPassword(password);
-
-        // Guardar en la base de datos
-        await db.insert(users).values({
-            name,
-            email,
-            password: hashedPassword,
-        });
-
-        return NextResponse.json({ message: "Usuario registrado exitosamente" }, { status: 201 });
+        // Retornar respuesta exitosa (sin incluir la contraseña)
+        return NextResponse.json(
+            {
+                message: "Usuario registrado exitosamente",
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                },
+            },
+            { status: 201 },
+        )
     } catch (error) {
-        console.error("❌ Error en el registro:", error);
-        return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+        console.error("Error al registrar usuario:", error)
+
+        // Manejar error de correo electrónico duplicado
+        if (error instanceof Error && error.message === "El correo electrónico ya está registrado") {
+            return NextResponse.json({ error: error.message }, { status: 409 })
+        }
+
+        // Manejar otros errores
+        return NextResponse.json({ error: "Error al registrar usuario" }, { status: 500 })
     }
 }
+

@@ -1,166 +1,100 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { signIn } from "next-auth/react";
-import { Eye, EyeOff } from "lucide-react";
-import { Input } from "@/app/components/Input";
-import { Button } from "@/app/components/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import type React from "react"
 
-// // Esquema de validación con Zod
-const loginSchema = z.object({
-    email: z.string().email("Debe ser un correo válido."),
-    password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
-});
-
-type LoginData = z.infer<typeof loginSchema>;
+import { useState } from "react"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/app/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Input } from "@/app/components/ui/input"
+import Link from "next/link"
+import { toast } from "sonner"
 
 export default function LoginForm() {
-    const [showPassword, setShowPassword] = useState(false);
-    const router = useRouter();
+    const router = useRouter()
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-    } = useForm<LoginData>({
-        resolver: zodResolver(loginSchema),
-    });
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setIsLoading(true)
 
-    const onSubmit = async (data: LoginData) => {
-        const result = await signIn("credentials", {
-            email: data.email,
-            password: data.password,
-            redirect: false,
-        });
+        try {
+            const result = await signIn("credentials", {
+                redirect: false,
+                email,
+                password,
+            })
 
-        if (!result) {
-            alert("Error desconocido al iniciar sesión.");
-            return;
+            if (result?.error) {
+                toast.error("Credenciales inválidas")
+            } else {
+                const session = await fetch("/api/auth/session")
+                const sessionData = await session.json()
+
+                if (sessionData?.user?.isAdmin) {
+                    router.push("/admin")
+                } else {
+                    router.push("/productos")
+                }
+                router.refresh()
+            }
+        } catch (error) {
+            toast.error("Error al iniciar sesión")
+        } finally {
+            setIsLoading(false)
         }
-
-        if (result.error) {
-            alert(result.error);
-        } else {
-            router.push("/dashboard");
-        }
-    };
+    }
 
     return (
-        <Card className="max-w-md mx-auto mt-10 p-6 shadow-lg">
+        <Card className="w-full max-w-md mx-auto">
             <CardHeader>
-                <CardTitle className="text-center text-xl font-bold">Iniciar Sesión</CardTitle>
+                <CardTitle className="text-2xl font-bold">Iniciar Sesión</CardTitle>
+                <CardDescription>Ingrese sus credenciales para acceder a su cuenta</CardDescription>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Correo */}
-                    <div>
-                        <Input type="email" placeholder="Correo electrónico" {...register("email")} />
-                        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-                    </div>
-
-                    {/* Contraseña */}
-                    <div className="relative">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                        <label htmlFor="email" className="text-sm font-medium">
+                            Correo Electrónico
+                        </label>
                         <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Contraseña"
-                            {...register("password")}
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="correo@ejemplo.com"
+                            required
                         />
-                        <button
-                            type="button"
-                            className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                        {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
                     </div>
-
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? "Iniciando..." : "Iniciar Sesión"}
+                    <div className="space-y-2">
+                        <label htmlFor="password" className="text-sm font-medium">
+                            Contraseña
+                        </label>
+                        <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
                     </Button>
-
-                    {/* Enlace al Registro */}
-                    <p className="text-center text-sm mt-2">
-                        ¿No tienes una cuenta?{" "}
-                        <button
-                            type="button"
-                            className="text-blue-600 hover:underline font-medium"
-                            onClick={() => router.push("/register")}
-                        >
-                            Regístrate
-                        </button>
-                    </p>
                 </form>
             </CardContent>
+            <CardFooter className="flex justify-center">
+                <p className="text-sm text-center">
+                    ¿No tiene una cuenta?{" "}
+                    <Link href="/register" className="text-blue-600 hover:underline">
+                        Regístrese aquí
+                    </Link>
+                </p>
+            </CardFooter>
         </Card>
-    );
+    )
 }
 
-
-/* -------------------------------------------------------------------------- */
-
-// const loginSchema = z.object({
-//     email: z.string().email("Debe ser un correo válido."),
-//     password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
-// });
-
-// type LoginData = z.infer<typeof loginSchema>;
-
-// export function LoginForm() {
-//     const [error, setError] = useState("");
-//     const router = useRouter();
-
-//     const {
-//         register,
-//         handleSubmit,
-//         formState: { errors, isSubmitting },
-//     } = useForm<LoginData>({
-//         resolver: zodResolver(loginSchema),
-//     });
-
-//     const onSubmit = async (data: LoginData) => {
-//         setError("");
-
-//         try {
-//             const response = await fetch("/api/login", {
-//                 method: "POST",
-//                 headers: { "Content-Type": "application/json" },
-//                 body: JSON.stringify(data),
-//             });
-
-//             const result = await response.json();
-
-//             if (!response.ok) {
-//                 throw new Error(result.error || "Error al iniciar sesión");
-//             }
-
-//             // Redirigir al sidebar después del login
-//             router.push("/dashboard");
-//         } catch (error) {
-//             setError(error instanceof Error ? error.message : "Error desconocido");
-//         }
-//     };
-
-//     return (
-//         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-//             {error && <p className="text-red-500 text-sm">{error}</p>}
-
-//             {/* Correo */}
-//             <Input type="email" placeholder="Correo electrónico" {...register("email")} />
-//             {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-
-//             {/* Contraseña */}
-//             <Input type="password" placeholder="Contraseña" {...register("password")} />
-//             {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
-
-//             <Button type="submit" className="w-full" disabled={isSubmitting}>
-//                 {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
-//             </Button>
-//         </form>
-//     );
-// }

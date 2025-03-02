@@ -1,11 +1,19 @@
-import "./globals.css";
-import { Navbar } from "./components/Navbar";
-import { RegisterForm } from "./(auth)/register/formulario";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import type React from "react"
+import "./globals.css"
+import { Inter } from "next/font/google"
+import { AuthProvider } from "./providers"
+// import { Navbar } from "./components/navbar"
+import { Toaster } from "sonner"
+import { Navbar } from "./components/Navbar"
 import { db } from "./lib/db";
-import { Sidebar } from "./components/Sidebar";
 
+
+const inter = Inter({ subsets: ["latin"] })
+
+export const metadata = {
+    title: "Online Shop",
+    description: "Aplicación ecoommerce",
+}
 async function testDBConnection() {
     try {
         await db.execute("SELECT 1");
@@ -15,25 +23,21 @@ async function testDBConnection() {
     }
 }
 
-testDBConnection();
-
-
-export default async function RootLayout({
+export default function RootLayout({
     children,
 }: {
-    children: React.ReactNode;
+    children: React.ReactNode
 }) {
-    const session = await getServerSession(authOptions) || null;
-
     return (
         <html lang="es">
-            <body className="bg-gray-100">
-                <Navbar session={session} />
-                <Sidebar />
-                <main className="container mx-auto p-4">
+            <body className={inter.className}>
+                <AuthProvider>
+                    <Navbar />
                     {children}
-                </main>
+                    <Toaster position="top-right" />
+                </AuthProvider>
             </body>
         </html>
-    );
+    )
 }
+

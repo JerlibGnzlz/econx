@@ -1,37 +1,49 @@
-"use client"
-
-import { Session } from "next-auth"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Button } from "./Button"
+import { getSession } from "../lib/auth"
+import { LogoutButton } from "./ui/logout-button"
 
-interface NavbarProps {
-    session: Session | null
-}
-
-export function Navbar({ session }: NavbarProps) {
-    const router = useRouter()
+export async function Navbar() {
+    const session = await getSession()
 
     return (
-        <nav className="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md">
-            {/* Usando Link en lugar de button */}
-            <Link href="/" className="text-3xl font-extrabold bg-gradient-to-r from-purple-500 to-pink-400 text-transparent bg-clip-text">
-                ONLINE SHOP 🛍️✨
-            </Link>
+        <nav className="bg-white shadow dark:bg-gray-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between h-16">
+                    <div className="flex items-center">
+                        <Link href="/" className="text-3xl font-extrabold bg-gradient-to-r from-purple-500 to-pink-400 text-transparent bg-clip-text">
+                            ONLINE SHOP 🛍️✨
+                        </Link>
+                    </div>
 
-            <div className="flex items-center space-x-4">
-                {session ? (
-                    <p className="text-slate-300">Bienvenido, {session.user?.name}</p>
-                ) : (
-                    <Button
-                        onClick={() => router.push("/register")}
-                        className="bg-[#312488] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#271b70] transition-all duration-300 ease-in-out"
-                    >
-                        Registrarse
-                    </Button>
-                )}
+                    <div className="hidden md:flex space-x-4">
+                        <Link
+                            href="/productos"
+                            className="text-gray-700 hover:text-gray-900 dark:text-gray-200 px-3 py-2 rounded-md text-sm font-medium"
+                        >
+                            Productos y Servicios
+                        </Link>
+                        {/* Otros enlaces de navegación */}
+                    </div>
+
+                    <div className="flex items-center">
+                        {session ? (
+                            <div className="flex items-center gap-4">
+                                <span className="text-sm text-gray-700 dark:text-gray-200">{session.user.name}</span>
+                                <LogoutButton />
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-4">
+                                <Link href="/login" className="text-gray-700 hover:text-gray-900 dark:text-gray-200">
+                                    Iniciar Sesión
+                                </Link>
+                                <Link href="/register" className="text-gray-700 hover:text-gray-900 dark:text-gray-200">
+                                    Registrarse
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </nav>
     )
 }
-
