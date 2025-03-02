@@ -79,7 +79,7 @@ import { getUserByEmail, verifyPassword } from "./userServices"
 // import { getUserByEmail, verifyPassword } from "@/app/lib/userservices"
 
 // Especificar que use Node.js runtime
-export const runtime = "nodejs";
+// export const runtime = "nodejs";
 
 
 export const authOptions: NextAuthOptions = {

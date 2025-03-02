@@ -80,6 +80,6 @@ const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
 
 // 🔹 Forzar que Next.js use Node.js en lugar de Edge Runtime
-export const config = {
-    runtime: "nodejs",
-};
+// export const config = {
+//     runtime: "nodejs",
+// };
