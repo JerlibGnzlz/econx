@@ -1,10 +1,9 @@
 import type React from "react"
 import "./globals.css"
-import { AuthProvider } from "./providers"
-// import { Navbar } from "./components/navbar"
 import { Toaster } from "sonner"
 import { Navbar } from "./components/Navbar"
 import { db } from "./lib/db";
+import { Providers } from "./providers copy";
 
 
 
@@ -29,13 +28,16 @@ export default function RootLayout({
     return (
         <html lang="es">
             <body className="bg-gray-100" >
-                <AuthProvider>
+                <Providers>
                     <Navbar />
                     {children}
                     <Toaster position="top-right" />
-                </AuthProvider>
+                </Providers>
+                {/* <AuthProvider>
+                    <Navbar />
+                    {children}
+                </AuthProvider> */}
             </body>
         </html>
     )
 }
-
