@@ -14,10 +14,6 @@ export default function HomePage() {
                     <p className="mt-2 text-lg text-gray-600 font-medium">
                         Gestiona tus productos, usuarios y ventas en un solo lugar.
                     </p>
-
-                    {/* <Button className="mt-4 text-black bg-white px-6 py-2 rounded-lg shadow-md hover:bg-slate-100 hover:text-slate-900 hover:scale-105 transition-all duration-300">
-                        Explorar
-                    </Button> */}
                 </div>
                 <Image
                     src="/online.jpg"

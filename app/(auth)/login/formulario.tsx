@@ -5,11 +5,12 @@ import type React from "react"
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/app/components/ui/button"
+// import { Button } from "@/app/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card"
 import { Input } from "@/app/components/ui/input"
 import Link from "next/link"
 import { toast } from "sonner"
+import { Button } from "@/app/components/Button"
 
 export default function LoginForm() {
     const router = useRouter()
@@ -37,7 +38,7 @@ export default function LoginForm() {
                 if (sessionData?.user?.isAdmin) {
                     router.push("/admin")
                 } else {
-                    router.push("/productos")
+                    router.push("/products")
                 }
                 router.refresh()
             }
