@@ -6,11 +6,12 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/lib/authOptions"
 import { db } from "@/app/lib/db"
 import { products, users } from "@/app/lib/schema"
+import { DeleteProductButton } from "@/app/components/DeleteProductButton"
 
 export default async function ProductDetailPage({
     params,
 }: {
-    params: { id: string }
+    params: { id?: string }
 }) {
     const session = await getServerSession(authOptions)
 
@@ -19,13 +20,17 @@ export default async function ProductDetailPage({
         redirect("/login")
     }
 
+    if (!params.id) {
+        notFound()
+    }
+
     const id = Number.parseInt(params.id)
 
     if (isNaN(id)) {
         notFound()
     }
 
-    // Obtener el ID del usuario desde la sesión
+    // Obtener el usuario
     const user = await db.query.users.findFirst({
         where: eq(users.email, session.user?.email || ""),
     })
@@ -34,7 +39,7 @@ export default async function ProductDetailPage({
         redirect("/login")
     }
 
-    // Obtener el producto verificando que pertenezca al usuario
+    // Obtener el producto
     const product = await db.query.products.findFirst({
         where: and(eq(products.id, id), eq(products.userId, user.id)),
     })
@@ -43,7 +48,6 @@ export default async function ProductDetailPage({
         notFound()
     }
 
-    // Convertir el precio a número para mostrarlo correctamente
     const price = typeof product.price === "string" ? Number.parseFloat(product.price) : Number(product.price)
 
     return (
@@ -58,14 +62,16 @@ export default async function ProductDetailPage({
                 <div className="relative h-80 md:h-96 bg-gray-100 rounded-lg">
                     {product.image ? (
                         <Image
-                            src={product.image || "/placeholder.svg"}
+                            src={product.image}
                             alt={product.name}
                             fill
                             className="object-cover rounded-lg"
                             unoptimized
                         />
                     ) : (
-                        <div className="flex items-center justify-center h-full w-full text-gray-500">Sin imagen</div>
+                        <div className="flex items-center justify-center h-full w-full text-gray-500">
+                            Sin imagen
+                        </div>
                     )}
                 </div>
 
@@ -91,25 +97,11 @@ export default async function ProductDetailPage({
                             Editar
                         </Link>
 
-                        <Link
-                            href="/products"
-                            className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                            onClick={async (e) => {
-                                e.preventDefault()
-                                if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-                                    await fetch(`/api/products/${product.id}`, {
-                                        method: "DELETE",
-                                    })
-                                    redirect("/products")
-                                }
-                            }}
-                        >
-                            Eliminar
-                        </Link>
+                        {/* Botón separado para manejo en el cliente */}
+                        <DeleteProductButton productId={product.id} />
                     </div>
                 </div>
             </div>
         </div>
     )
 }
-
