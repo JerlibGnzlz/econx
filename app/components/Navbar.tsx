@@ -17,7 +17,7 @@ export async function Navbar() {
 
                     <div className="hidden md:flex space-x-4">
                         <Link
-                            href="/productos"
+                            href="/products"
                             className="text-gray-700 hover:text-gray-900 dark:text-gray-200 px-3 py-2 rounded-md text-sm font-medium"
                         >
                             Productos y Servicios
