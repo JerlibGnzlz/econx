@@ -3,7 +3,7 @@ import "./globals.css"
 import { Toaster } from "sonner"
 import { Navbar } from "./components/Navbar"
 import { db } from "./lib/db";
-import { Providers } from "./providers copy";
+import { Providers } from "./providers";
 
 
 
@@ -33,10 +33,6 @@ export default function RootLayout({
                     {children}
                     <Toaster position="top-right" />
                 </Providers>
-                {/* <AuthProvider>
-                    <Navbar />
-                    {children}
-                </AuthProvider> */}
             </body>
         </html>
     )

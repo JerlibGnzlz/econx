@@ -1,9 +1,9 @@
-import { getServerSession } from "next-auth"
+import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
-import { db } from "@/app/lib/db"
 import { eq } from "drizzle-orm"
 import ProfileForm from "./profile-form"
 import { authOptions } from "@/app/lib/authOptions"
+import { db } from "@/app/lib/db"
 import { users } from "@/app/lib/schema"
 
 export default async function ProfilePage() {

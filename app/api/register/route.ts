@@ -1,54 +1,52 @@
-import { createUser } from "@/app/lib/userServices"
-import { type NextRequest, NextResponse } from "next/server"
-// import { createUser } from "@/app/lib/userservices"
-import { z } from "zod"
+import { NextResponse } from "next/server"
+import bcrypt from "bcryptjs"
+import { db } from "@/app/lib/db"
+import { users } from "@/app/lib/schema"
+import { eq } from "drizzle-orm"
 
-// Esquema de validación para el registro
-const registerSchema = z.object({
-    name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-    email: z.string().email("Correo electrónico inválido"),
-    password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
-})
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
     try {
-        // Obtener y validar los datos del cuerpo de la solicitud
-        const body = await request.json()
-        const validationResult = registerSchema.safeParse(body)
+        const { name, email, password } = await request.json()
 
-        if (!validationResult.success) {
-            return NextResponse.json(
-                { error: "Datos de registro inválidos", details: validationResult.error.format() },
-                { status: 400 },
-            )
+        // Validar los datos de entrada
+        if (!name || !email || !password) {
+            return NextResponse.json({ error: "Todos los campos son obligatorios" }, { status: 400 })
         }
+
+        // Verificar si el usuario ya existe
+        const existingUser = await db.query.users.findFirst({
+            where: eq(users.email, email),
+        })
+
+        if (existingUser) {
+            return NextResponse.json({ error: "El usuario ya está registrado" }, { status: 400 })
+        }
+
+        // Hashear la contraseña antes de guardarla en la base de datos
+        const hashedPassword = await bcrypt.hash(password, 10)
 
         // Crear el usuario en la base de datos
-        const userData = validationResult.data
-        const user = await createUser(userData)
+        const newUser = await db
+            .insert(users)
+            .values({
+                name,
+                email,
+                password: hashedPassword,
+                role: "user",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            })
+            .returning()
 
-        // Retornar respuesta exitosa (sin incluir la contraseña)
-        return NextResponse.json(
-            {
-                message: "Usuario registrado exitosamente",
-                user: {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                },
-            },
-            { status: 201 },
-        )
+        // Retornar el usuario recién creado (sin la contraseña)
+        return NextResponse.json({
+            id: newUser[0].id,
+            name: newUser[0].name,
+            email: newUser[0].email,
+            role: newUser[0].role,
+        })
     } catch (error) {
         console.error("Error al registrar usuario:", error)
-
-        // Manejar error de correo electrónico duplicado
-        if (error instanceof Error && error.message === "El correo electrónico ya está registrado") {
-            return NextResponse.json({ error: error.message }, { status: 409 })
-        }
-
-        // Manejar otros errores
         return NextResponse.json({ error: "Error al registrar usuario" }, { status: 500 })
     }
 }
-
