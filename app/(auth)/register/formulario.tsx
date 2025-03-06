@@ -179,7 +179,7 @@ export default function RegisterForm() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full" disabled={isLoading} aria-label="Registrarse">
+                        <Button type="submit" className="w-full border" disabled={isLoading} aria-label="Registrarse">
                             {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
