@@ -6,6 +6,7 @@ import { db } from "@/app/lib/db"
 import { products, users } from "@/app/lib/schema"
 
 // GET - Obtener un producto por ID (verificando propiedad)
+
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     try {
         const id = Number.parseInt(params.id)

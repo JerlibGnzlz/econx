@@ -4,6 +4,7 @@ import { db } from "@/app/lib/db"
 import { users } from "@/app/lib/schema"
 import { eq } from "drizzle-orm"
 
+
 export async function POST(request: Request) {
     try {
         const { name, email, password } = await request.json()

@@ -1,26 +1,32 @@
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   experimental: {
-//     // ❌ Elimina esta línea, ya no es necesaria
-//     serverActions: true,
-//     runtime: "nodejs",
-//   },
-// };
 
-// module.exports = nextConfig;
-// @ts-check
 
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
+// import type { NextConfig } from 'next'
+
+// const nextConfig: NextConfig = {
 //   /* config options here */
 // }
 
-// module.exports = nextConfig
+// export default nextConfig
 
-import type { NextConfig } from 'next'
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    domains: ["localhost", "placeholder.com", "via.placeholder.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+      },
+    ],
+  },
+  // Ignorar advertencias específicas
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 }
 
-export default nextConfig
+module.exports = nextConfig

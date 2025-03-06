@@ -82,6 +82,7 @@ import bcrypt from "bcryptjs"
 import { db } from "./db"
 import { users } from "./schema"
 
+
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
