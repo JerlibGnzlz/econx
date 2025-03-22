@@ -75,12 +75,12 @@ export default function LoginForm() {
                 if (sessionData?.user?.isAdmin) {
                     router.push("/admin")
                 } else {
-                    router.push("/products")
+                    router.push("/")
                 }
                 router.refresh()
             } catch (error) {
                 // Si hay un error al obtener la sesión, redirigir a la página de productos por defecto
-                router.push("/products")
+                router.push("/")
                 router.refresh()
             }
         } catch (error) {

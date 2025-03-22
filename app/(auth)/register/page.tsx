@@ -6,9 +6,9 @@ import RegisterForm from "./formulario"
 export default async function RegisterPage() {
     const session = await getServerSession(authOptions)
 
-    // Si ya hay una sesión activa, redirigir a la página de productos
+    // Si ya hay una sesión activa, redirigir a la página de dashboard
     if (session) {
-        redirect("/products")
+        redirect("/")
     }
 
     return (

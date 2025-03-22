@@ -1,6 +1,7 @@
 import { BarChart3, Users, ShoppingBag } from 'lucide-react';
 import Image from "next/image";
 import { Button } from './components/Button';
+import Link from 'next/link';
 
 export default function HomePage() {
     return (
@@ -49,8 +50,13 @@ export default function HomePage() {
                         <ShoppingBag className="h-8 w-8 text-slate-900" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-semibold text-slate-900">Productos en Catálogo</h2>
-                        <p className="text-slate-600 text-lg">320</p>
+                        <Link
+                            href="/products"
+                            className="text-gray-700 hover:text-gray-900 dark:text-gray-200 px-3 py-2 rounded-md text-sm font-medium"
+                        >
+                            <h2 className="text-xl font-semibold text-slate-900">Productos en Catálogo</h2>
+                            <p className="text-slate-600 text-lg">{/* Aquí puedes mostrar la cantidad de productos */}</p>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -72,7 +78,7 @@ export default function HomePage() {
                     </Button>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 

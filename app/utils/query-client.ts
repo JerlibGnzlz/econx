@@ -1,8 +1,5 @@
-"use client"
+import { QueryClient } from '@tanstack/react-query';
 
-import { QueryClient } from "@tanstack/react-query"
-
-// Crea una instancia del cliente de consulta
 export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
