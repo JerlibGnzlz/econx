@@ -1,10 +1,10 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-// Función para combinar clases de Tailwind de manera eficiente
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
+
 
 // Función para validar correo electrónico
 export function isValidEmail(email: string): boolean {
@@ -29,3 +29,4 @@ export function formatCurrency(amount: number): string {
     }).format(amount)
 }
 
+// src/app/lib/utils.ts (o en la carpeta adecuada)

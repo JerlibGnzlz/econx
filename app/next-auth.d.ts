@@ -1,21 +1,3 @@
-// import "next-auth"
-// import type { DefaultSession } from "next-auth"
-
-// declare module "next-auth" {
-//     interface Session {
-//         user: {
-//             id: string
-//             role: string
-//             isAdmin: boolean
-//         } & DefaultSession["user"]
-//     }
-
-//     interface User {
-//         role: string
-//         isAdmin: boolean
-//     }
-// }
-
 import NextAuth from "next-auth"
 
 declare module "next-auth" {
@@ -27,7 +9,25 @@ declare module "next-auth" {
         isAdmin?: boolean // Si no es obligatorio, usa `?`
     }
 
-    interface Session {
-        user: User
+
+    //     interface Session {
+    //         user: User
+    //     }
+    // }
+
+    interface Session extends DefaultSession {
+        user: {
+            id: string
+            email: string
+            name?: string | null
+            role?: string
+        } & DefaultSession["user"]
+    }
+}
+
+declare module "next-auth/jwt" {
+    interface JWT {
+        id: string
+        role?: string
     }
 }
