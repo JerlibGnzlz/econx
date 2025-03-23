@@ -42,10 +42,12 @@ export interface UpdateOrderStatusInput {
 }
 
 export interface CartItem {
+    id: number
     productId: number
     quantity: number
     product: Product
 }
+
 
 // Servicios para pedidos
 export const orderService = {
@@ -107,6 +109,7 @@ export const cartService = {
         } else {
             // Añadir nuevo item si no existe
             mockCart.push({
+                id: Date.now(),
                 productId,
                 quantity,
                 product,

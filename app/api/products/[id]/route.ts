@@ -9,7 +9,7 @@ import { products, users } from "@/app/lib/schema"
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     try {
-        const id = Number.parseInt(params.id)
+        const id = await Number.parseInt(params.id)
 
         if (isNaN(id)) {
             return NextResponse.json({ error: "ID inválido" }, { status: 400 })
