@@ -1,22 +1,22 @@
 "use client"
 
-import Image from "next/image";
-import Link from "next/link";
-import { Eye, Edit, Trash2 } from "lucide-react";
-import AddToCartButton from "./add-to-cart-button";
+import Image from "next/image"
+import Link from "next/link"
+import { Eye, Edit, Trash2 } from "lucide-react"
+import AddToCartButton from "./add-to-cart-button"
 
 interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    image: string;
+    id: number
+    name: string
+    description: string
+    price: number
+    image: string
 }
 
 interface ProductCardProps {
-    product: Product;
-    isAuthenticated: boolean;
-    onDelete: (id: number) => void;
+    product: Product
+    isAuthenticated: boolean
+    onDelete: (id: number) => void
 }
 
 export default function ProductCard({ product, isAuthenticated, onDelete }: ProductCardProps) {
@@ -42,7 +42,7 @@ export default function ProductCard({ product, isAuthenticated, onDelete }: Prod
                 </p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                    <AddToCartButton product={product} />
+                    <AddToCartButton productId={product.id} variant="outline" size="sm" />
 
                     <Link
                         href={`/products/${product.id}`}
@@ -74,5 +74,6 @@ export default function ProductCard({ product, isAuthenticated, onDelete }: Prod
                 </div>
             </div>
         </div>
-    );
+    )
 }
+
